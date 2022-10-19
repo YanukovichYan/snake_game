@@ -26,10 +26,10 @@ export class Game {
 
     startGame() {
         if (this.interval) clearInterval(this.interval)
-
+        this.score = 0
+        this.scoreElement.innerText = this.score
         this.food = new Food(this.context, this.positionsCount, this.positionsSize)
         this.snake = new Snake(this.context, this.positionsCount, this.positionsSize)
-
         this.food.setNewFoodPosition()
         this.interval = setInterval(this.gameProcess.bind(this), 100)
 
@@ -37,7 +37,7 @@ export class Game {
 
     gameProcess() {
         this.context.clearRect(0, 0, this.positionsCount * this.positionsSize, this.positionsCount * this.positionsSize)
-
+        console.log(this.score)
         // this.showGrid()
         this.food.showFood()
         let result = this.snake.showSnake(this.food.foodPosition)
