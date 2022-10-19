@@ -1,4 +1,5 @@
 import {Snake} from "./snake.js";
+import {Food} from "./food.js";
 
 export class Game {
 
@@ -6,6 +7,9 @@ export class Game {
     context = null
     positionsCount = null
     positionsSize = null
+    score = 0
+    scoreElement = null
+    interval = null
 
     constructor(context, settings) {
         this.context = context
@@ -13,25 +17,50 @@ export class Game {
         this.positionsCount = settings.positionsCount
         this.positionsSize = settings.positionsSize
 
+        this.scoreElement = document.getElementById('score')
+
         document.getElementById('start').onclick = () => {
             this.startGame()
         }
     }
 
     startGame() {
+        if (this.interval) clearInterval(this.interval)
 
+        this.food = new Food(this.context, this.positionsCount, this.positionsSize)
         this.snake = new Snake(this.context, this.positionsCount, this.positionsSize)
 
-
-        setInterval(this.gameProcess.bind(this), 500)
+        this.food.setNewFoodPosition()
+        this.interval = setInterval(this.gameProcess.bind(this), 100)
 
     }
 
     gameProcess() {
         this.context.clearRect(0, 0, this.positionsCount * this.positionsSize, this.positionsCount * this.positionsSize)
-        this.snake.showSnake()
-        this.showGrid()
 
+        // this.showGrid()
+        this.food.showFood()
+        let result = this.snake.showSnake(this.food.foodPosition)
+        if (result) {
+            if (result.collision) {
+                this.endGame()
+            } else if (result.gotFood) {
+                this.score += 1
+                this.scoreElement.innerText = this.score
+                this.food.setNewFoodPosition()
+            }
+        }
+    }
+
+    endGame() {
+        clearInterval(this.interval)
+        this.context.fillStyle = 'black'
+        this.context.font = 'bold 48px Arial'
+        this.context.textAlign = 'center'
+        this.context.fillText(
+            'Вы набрали: ' + this.score + ' очков!',
+            (this.positionsSize * this.positionsCount) / 2, (this.positionsSize * this.positionsCount) / 2
+            )
     }
 
     showGrid() {
